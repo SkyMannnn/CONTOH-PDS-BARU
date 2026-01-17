@@ -15,7 +15,7 @@ def scrape_jabar_raya(total_target=1500):
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
     
-    # DAFTAR 27 WILAYAH JAWA BARAT
+    # DAFTAR 10 WILAYAH JAWA BARAT
     locations = {
     "Kota Bandung": (-6.9175, 107.6191), 
     "Kab. Bandung": (-7.0251, 107.5197), 

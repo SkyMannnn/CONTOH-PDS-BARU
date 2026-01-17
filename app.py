@@ -71,12 +71,13 @@ with st.sidebar:
         ]
     )
 
+    st.subheader("📍 Filter Wilayah Global")
     wilayah_sidebar = st.selectbox(
-        "📍 Filter Wilayah (Global)",
+        "Pilih Wilayah",
         ["Seluruh Jawa Barat"] + list(KOTA_COORDS.keys())
     )
 
-# ===================== FILTER GLOBAL =====================
+# ===================== FILTER GLOBAL (WAJIB) =====================
 f_df = df.copy()
 if wilayah_sidebar != "Seluruh Jawa Barat":
     f_df = f_df[f_df['Wilayah'] == wilayah_sidebar]
@@ -117,43 +118,30 @@ elif menu == "📈 Visualisasi Data":
     )
     st.plotly_chart(fig, use_container_width=True)
 
-# ===================== MENU 3 (PEMETAAN FINAL) =====================
+# ===================== MENU 3 (PEMETAAN) =====================
 elif menu == "🗺️ Pemetaan UMKM":
     st.title("🗺️ Pemetaan & Pencarian UMKM")
 
+    # === FILTER KHUSUS PEMETAAN (BUKAN WILAYAH) ===
     col_map, col_filter = st.columns([3, 1])
 
     with col_filter:
-        st.subheader("🔍 Filter Pemetaan")
-
-        wilayah_map = st.selectbox(
-            "Wilayah (Pemetaan)",
-            ["Semua Wilayah"] + list(KOTA_COORDS.keys())
-        )
-
+        st.subheader("🔍 Pencarian Peta")
         keyword = st.text_input("Cari Nama UMKM")
         show_heatmap = st.checkbox("Aktifkan Heatmap")
 
-    # ===== FILTER DATA PEMETAAN =====
+    # === DATA PEMETAAN MENGIKUTI WILAYAH GLOBAL ===
     map_df = f_df.dropna(subset=['lat', 'lng']).copy()
-
-    if wilayah_map != "Semua Wilayah":
-        map_df = map_df[map_df['Wilayah'] == wilayah_map]
 
     if keyword.strip():
         map_df = map_df[
             map_df['Nama'].str.contains(keyword, case=False, na=False)
         ]
 
-    # ===== PILIH UMKM =====
     selected_umkm = None
     if not map_df.empty:
-        selected_umkm = st.selectbox(
-            "📌 Pilih lokasi UMKM",
-            map_df['Nama']
-        )
+        selected_umkm = st.selectbox("📌 Lihat lokasi UMKM", map_df['Nama'])
 
-    # ===== MAP =====
     with col_map:
         if map_df.empty:
             st.warning("❌ Data UMKM tidak ditemukan")
@@ -162,8 +150,8 @@ elif menu == "🗺️ Pemetaan UMKM":
                 r = map_df[map_df['Nama'] == selected_umkm].iloc[0]
                 center = (r['lat'], r['lng'])
                 zoom = 17
-            elif wilayah_map != "Semua Wilayah":
-                center = KOTA_COORDS[wilayah_map]
+            elif wilayah_sidebar != "Seluruh Jawa Barat":
+                center = KOTA_COORDS[wilayah_sidebar]
                 zoom = 12
             else:
                 center = (-6.9175, 107.6191)
@@ -193,9 +181,8 @@ elif menu == "🗺️ Pemetaan UMKM":
 
             st_folium(m, width="100%", height=550)
 
-    # ===== TABEL =====
-    st.subheader("📋 Hasil Data UMKM Yang Di Cari ")
-    table_df = map_df[['Nama', 'Wilayah', 'Kategori', 'Rating']].copy()
+    st.subheader("📋 Hasil Data UMKM")
+    table_df = map_df[['Nama', 'Wilayah', 'Kategori', 'Rating']]
     table_df.index = range(1, len(table_df) + 1)
     st.dataframe(table_df, use_container_width=True)
 
